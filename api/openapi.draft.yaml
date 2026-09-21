@@ -73,7 +73,7 @@ paths:
   /core-asks/{id}:
     get:
       operationId: getCoreAsk
-      summary: Return one Core ASK by its identifier: the current version, its business data and its workflow status. Changes nothing.
+         summary: "Return one Core ASK by its identifier: the current version, its business data and its workflow status. Changes nothing.".
       parameters:
         - name: id
           in: path
