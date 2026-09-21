@@ -1,0 +1,237 @@
+{
+  "workflow": "API_CONTRACT",
+  "stage": "PLANNER",
+  "status": "CONTINUE",
+  "ticketId": "1860",
+  "storyId": "US-ASK-004",
+  "owner": "akhilkishore-asc",
+  "repoName": "aava_drt_demo",
+  "branch": "main",
+  "specPath": "specs/1860-core-ask-submit/spec.md",
+  "runFolder": "design/runs/1860",
+  "cardPlanPath": "design/runs/1860/design-card-plan.json",
+  "apiCount": 1,
+  "cardsUsed": [
+    "ASK-SUBMIT-CORE-ASK"
+  ],
+  "cardsSkipped": [],
+  "mode": "EXISTING_CONTRACT",
+  "contractReadProof": "folder read, file present",
+  "infoTitle": "",
+  "existing": {
+    "operations": [
+      "GET /api/v1/core-asks",
+      "POST /api/v1/core-asks",
+      "GET /api/v1/core-asks/{id}"
+    ],
+    "schemas": [
+      "CoreAskListResponse",
+      "CoreAskSummary",
+      "CreateCoreAskRequest",
+      "CreateCoreAskResponse",
+      "CoreAskResponse",
+      "CoreAskDetailsResponse",
+      "CoreAskDetails",
+      "DocumentReference",
+      "TaskReference",
+      "CommentReference",
+      "AuditReference",
+      "ProblemDetails"
+    ]
+  },
+  "plan": {
+    "operations": [
+      {
+        "cardId": "ASK-SUBMIT-CORE-ASK",
+        "key": "POST /api/v1/core-asks/{id}/submissions",
+        "decision": "ADD",
+        "operationId": "submitCoreAsk",
+        "summary": "Submit a draft Core ASK for review, moving it from In Progress to review and creating the review task.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "format": "uuid",
+            "required": true,
+            "description": "The askId"
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "type": "string",
+            "required": true,
+            "constraints": {
+              "maxLength": 128
+            },
+            "description": "Idempotency key to ensure safe retries"
+          }
+        ],
+        "requestSchema": "SubmitCoreAskRequest",
+        "responses": [
+          {
+            "status": 200,
+            "schema": "CoreAskSubmissionResponse",
+            "description": "OK - ASK submitted successfully"
+          },
+          {
+            "status": 400,
+            "schema": "ProblemDetails",
+            "description": "Validation failed - bad body, comment too long, or missing Idempotency-Key"
+          },
+          {
+            "status": 401,
+            "schema": "ProblemDetails",
+            "description": "Unauthenticated"
+          },
+          {
+            "status": 403,
+            "schema": "ProblemDetails",
+            "description": "Access denied - caller may not submit this ASK"
+          },
+          {
+            "status": 404,
+            "schema": "ProblemDetails",
+            "description": "Not found - no ASK exists with the given id"
+          },
+          {
+            "status": 409,
+            "schema": "ProblemDetails",
+            "description": "Conflict - stale version, wrong status, or key reused with a different body"
+          },
+          {
+            "status": 503,
+            "schema": "ProblemDetails",
+            "description": "Dependency unavailable"
+          }
+        ],
+        "satisfies": [
+          "FR1",
+          "FR2",
+          "FR3",
+          "FR4",
+          "FR5",
+          "FR6",
+          "FR7",
+          "FR8",
+          "BR1",
+          "BR2",
+          "BR3",
+          "BR4",
+          "BR5",
+          "BR6",
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6",
+          "AC7"
+        ],
+        "standards": [
+          "API 001",
+          "API 002",
+          "API 003",
+          "SEC 001",
+          "SEC 002",
+          "SEC 003",
+          "DATA 003",
+          "WF 001",
+          "WF 003",
+          "REL 001",
+          "OBS 001",
+          "TEST 001"
+        ],
+        "breakingChange": false
+      }
+    ],
+    "schemas": [
+      {
+        "name": "SubmitCoreAskRequest",
+        "decision": "ADD",
+        "fields": [
+          {
+            "name": "expectedVersion",
+            "type": "integer",
+            "format": "int32",
+            "required": true,
+            "constraints": {
+              "minimum": 1
+            },
+            "description": "The version the caller is submitting"
+          },
+          {
+            "name": "comment",
+            "type": "string",
+            "format": "",
+            "required": false,
+            "constraints": {
+              "maxLength": 1000
+            },
+            "description": "Optional note for the reviewer"
+          }
+        ]
+      },
+      {
+        "name": "CoreAskSubmissionResponse",
+        "decision": "ADD",
+        "fields": [
+          {
+            "name": "askId",
+            "type": "string",
+            "format": "uuid",
+            "required": true,
+            "constraints": {},
+            "description": "Identifier of the ASK"
+          },
+          {
+            "name": "version",
+            "type": "integer",
+            "format": "int32",
+            "required": true,
+            "constraints": {
+              "minimum": 1
+            },
+            "description": "The ASK's version after submission"
+          },
+          {
+            "name": "statusId",
+            "type": "integer",
+            "format": "int32",
+            "required": true,
+            "constraints": {},
+            "description": "New workflow status, 127 or 145"
+          },
+          {
+            "name": "taskId",
+            "type": "string",
+            "format": "uuid",
+            "required": true,
+            "constraints": {},
+            "description": "Identifier of the review task created"
+          },
+          {
+            "name": "submittedOn",
+            "type": "string",
+            "format": "date-time",
+            "required": true,
+            "constraints": {},
+            "description": "When the ASK was submitted, ISO 8601 UTC"
+          }
+        ]
+      }
+    ]
+  },
+  "openPoints": [
+    {
+      "source": "missingFact",
+      "cardId": "ASK-SUBMIT-CORE-ASK",
+      "item": "Whether the review task assignee should be returned in the response",
+      "owner": "Product Owner",
+      "resolution": "Not resolved - this is an additive optional field that can be added later without breaking the contract",
+      "blocking": false
+    }
+  ],
+  "blocked": [],
+  "errors": []
+}
