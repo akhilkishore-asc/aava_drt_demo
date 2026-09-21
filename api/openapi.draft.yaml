@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: DRT Platform API
-  version: 1.3.0
+  version: 1.4.0
   description: API for the DRT Platform
 servers:
   - url: https://{host}/api/v1
@@ -169,6 +169,75 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
         '404':
           description: Not found - no ASK with that id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          description: Dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /core-asks/{id}/submissions:
+    post:
+      operationId: submitCoreAsk
+      summary: Submit a draft Core ASK for review, moving it from In Progress to review and creating the review task.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The askId
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            maxLength: 128
+          description: Idempotency key to ensure safe retries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitCoreAskRequest'
+      responses:
+        '200':
+          description: OK - ASK submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoreAskSubmissionResponse'
+        '400':
+          description: Validation failed - bad body, comment too long, or missing Idempotency-Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: Access denied - caller may not submit this ASK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not found - no ASK exists with the given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict - stale version, wrong status, or key reused with a different body
           content:
             application/json:
               schema:
@@ -483,6 +552,52 @@ components:
           type: string
         roleQualification:
           type: string
+
+    SubmitCoreAskRequest:
+      type: object
+      required:
+        - expectedVersion
+      properties:
+        expectedVersion:
+          type: integer
+          format: int32
+          minimum: 1
+          description: The version the caller is submitting
+        comment:
+          type: string
+          maxLength: 1000
+          description: Optional note for the reviewer
+
+    CoreAskSubmissionResponse:
+      type: object
+      required:
+        - askId
+        - version
+        - statusId
+        - taskId
+        - submittedOn
+      properties:
+        askId:
+          type: string
+          format: uuid
+          description: Identifier of the ASK
+        version:
+          type: integer
+          format: int32
+          minimum: 1
+          description: The ASK's version after submission
+        statusId:
+          type: integer
+          format: int32
+          description: New workflow status, 127 or 145
+        taskId:
+          type: string
+          format: uuid
+          description: Identifier of the review task created
+        submittedOn:
+          type: string
+          format: date-time
+          description: When the ASK was submitted, ISO 8601 UTC
 
     DocumentReference:
       type: object
