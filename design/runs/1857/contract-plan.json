@@ -574,8 +574,22 @@
           {
             "name": "instance",
             "type": "string",
-            "format": "uri",
+            "format": "",
             "required": false,
+            "constraints": {}
+          },
+          {
+            "name": "code",
+            "type": "string",
+            "format": "",
+            "required": false,
+            "constraints": {}
+          },
+          {
+            "name": "traceId",
+            "type": "string",
+            "format": "",
+            "required": true,
             "constraints": {}
           },
           {
