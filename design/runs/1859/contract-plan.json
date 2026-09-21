@@ -1,0 +1,250 @@
+{
+  "workflow": "API_CONTRACT",
+  "stage": "PLANNER",
+  "status": "CONTINUE",
+  "ticketId": "1859",
+  "storyId": "US-ASK-003",
+  "owner": "akhilkishore-asc",
+  "repoName": "aava_drt_demo",
+  "branch": "main",
+  "specPath": "specs/1859-core-ask-list/spec.md",
+  "runFolder": "design/runs/1859",
+  "cardPlanPath": "design/runs/1859/design-card-plan.json",
+  "apiCount": 1,
+  "cardsUsed": [
+    "ASK-LIST-CORE-ASKS"
+  ],
+  "cardsSkipped": [],
+  "mode": "EXISTING_CONTRACT",
+  "contractReadProof": "folder read, file present",
+  "infoTitle": "",
+  "existing": {
+    "operations": [
+      "POST /api/v1/core-asks",
+      "GET /api/v1/core-asks/{id}"
+    ],
+    "schemas": [
+      "CreateCoreAskRequest",
+      "CreateCoreAskResponse",
+      "CoreAskResponse",
+      "CoreAskDetailsResponse",
+      "CoreAskDetails",
+      "DocumentReference",
+      "TaskReference",
+      "CommentReference",
+      "AuditReference",
+      "ProblemDetails"
+    ]
+  },
+  "plan": {
+    "operations": [
+      {
+        "cardId": "ASK-LIST-CORE-ASKS",
+        "key": "GET /api/v1/core-asks",
+        "decision": "ADD",
+        "operationId": "listCoreAsks",
+        "summary": "Return one page of the Core ASKs the caller may view, newest first, optionally filtered by workflow status. Changes nothing.",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "required": false,
+            "constraints": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "type": "string",
+            "format": "",
+            "required": false,
+            "constraints": {
+              "maxLength": 512
+            },
+            "description": "Opaque token to retrieve the next page"
+          },
+          {
+            "name": "statusId",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "required": false,
+            "constraints": {
+              "enum": [123, 127, 145]
+            },
+            "description": "Filter by workflow status"
+          }
+        ],
+        "requestSchema": "",
+        "responses": [
+          {
+            "status": 200,
+            "schema": "CoreAskListResponse",
+            "description": "OK - page of Core ASKs returned, including when items is empty"
+          },
+          {
+            "status": 400,
+            "schema": "ProblemDetails",
+            "description": "Validation failed - pageSize out of range, statusId not allowed, or continuation token invalid"
+          },
+          {
+            "status": 401,
+            "schema": "ProblemDetails",
+            "description": "Unauthenticated"
+          },
+          {
+            "status": 403,
+            "schema": "ProblemDetails",
+            "description": "Access denied - caller holds View ASK in no business unit"
+          },
+          {
+            "status": 503,
+            "schema": "ProblemDetails",
+            "description": "Dependency unavailable"
+          }
+        ],
+        "satisfies": [
+          "FR1",
+          "FR2",
+          "FR3",
+          "FR4",
+          "FR5",
+          "FR6",
+          "FR7",
+          "FR8",
+          "BR1",
+          "BR2",
+          "BR3",
+          "BR4",
+          "BR5",
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5",
+          "AC6",
+          "AC7"
+        ],
+        "standards": [
+          "API 001",
+          "API 002",
+          "API 003",
+          "SEC 001",
+          "SEC 002",
+          "SEC 003",
+          "DATA 004",
+          "OBS 001",
+          "TEST 001"
+        ],
+        "breakingChange": false
+      }
+    ],
+    "schemas": [
+      {
+        "name": "CoreAskListResponse",
+        "decision": "ADD",
+        "fields": [
+          {
+            "name": "items",
+            "type": "array",
+            "format": "",
+            "required": true,
+            "constraints": {
+              "items": "CoreAskSummary"
+            },
+            "description": "The ASKs on this page"
+          },
+          {
+            "name": "pageSize",
+            "type": "integer",
+            "format": "int32",
+            "required": true,
+            "constraints": {
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "The page size applied"
+          },
+          {
+            "name": "continuationToken",
+            "type": "string",
+            "format": "",
+            "required": false,
+            "constraints": {
+              "maxLength": 512
+            },
+            "description": "Pass back to get the next page. Absent on the last page"
+          }
+        ]
+      },
+      {
+        "name": "CoreAskSummary",
+        "decision": "ADD",
+        "fields": [
+          {
+            "name": "askId",
+            "type": "string",
+            "format": "uuid",
+            "required": true,
+            "constraints": {},
+            "description": "Identifier of the ASK"
+          },
+          {
+            "name": "coreAskName",
+            "type": "string",
+            "format": "",
+            "required": true,
+            "constraints": {
+              "maxLength": 200
+            },
+            "description": "Name of the ASK"
+          },
+          {
+            "name": "statusId",
+            "type": "integer",
+            "format": "int32",
+            "required": true,
+            "constraints": {},
+            "description": "Current workflow status - 123, 127 or 145"
+          },
+          {
+            "name": "version",
+            "type": "integer",
+            "format": "int32",
+            "required": true,
+            "constraints": {
+              "minimum": 1
+            },
+            "description": "Current version number"
+          },
+          {
+            "name": "lastModifiedOn",
+            "type": "string",
+            "format": "date-time",
+            "required": true,
+            "constraints": {},
+            "description": "When the ASK was last changed, ISO 8601 UTC"
+          }
+        ]
+      }
+    ]
+  },
+  "openPoints": [
+    {
+      "source": "missingFact",
+      "cardId": "ASK-LIST-CORE-ASKS",
+      "item": "Whether a total count of matching ASKs should be returned",
+      "owner": "Product Owner",
+      "resolution": "Not resolved. Can be added later as an optional field without a breaking change.",
+      "blocking": false
+    }
+  ],
+  "blocked": [],
+  "errors": []
+}
