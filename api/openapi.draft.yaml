@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: DRT Platform API
-  version: 1.0.0
+  version: 1.1.0
   description: API for the DRT Platform
 servers:
   - url: https://{host}/api/v1
@@ -70,6 +70,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
 
+  /core-asks/{id}:
+    get:
+      operationId: getCoreAsk
+      summary: Return one Core ASK by its identifier: the current version, its business data and its workflow status. Changes nothing.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The askId
+      responses:
+        '200':
+          description: OK - Core ASK retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoreAskResponse'
+        '400':
+          description: Validation failed - id is not a GUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: Access denied - no View ASK permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not found - no ASK with that id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          description: Dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
 components:
   securitySchemes:
     EntraOAuth2:
@@ -133,6 +183,116 @@ components:
           $ref: '#/components/schemas/CommentReference'
         auditHistory:
           $ref: '#/components/schemas/AuditReference'
+
+    CoreAskResponse:
+      type: object
+      required:
+        - askId
+        - askDetailId
+        - version
+        - statusId
+        - coreAskDetails
+        - createdOn
+        - lastModifiedOn
+      properties:
+        askId:
+          type: string
+          format: uuid
+          description: Identifier of the ASK
+        askDetailId:
+          type: string
+          format: uuid
+          description: Identifier of the current version's detail record
+        version:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Current version number
+        statusId:
+          type: integer
+          format: int32
+          description: 'Current workflow status: 123, 127 or 145'
+        coreAskDetails:
+          $ref: '#/components/schemas/CoreAskDetailsResponse'
+        createdOn:
+          type: string
+          format: date-time
+          description: When the ASK was created, ISO 8601 UTC
+        lastModifiedOn:
+          type: string
+          format: date-time
+          description: When the ASK was last changed, ISO 8601 UTC
+
+    CoreAskDetailsResponse:
+      type: object
+      required:
+        - coreAskName
+        - dppGroupId
+        - needReasonId
+        - generalSpecialityNeedId
+        - levelNeedId
+        - projectedStartDate
+        - headCountAmount
+        - fteAmount
+        - titlingCategory
+        - roleSummary
+        - roleResponsibility
+        - roleQualification
+      properties:
+        coreAskName:
+          type: string
+          maxLength: 200
+        dppGroupId:
+          type: string
+          format: uuid
+        needReasonId:
+          type: string
+          format: uuid
+        generalSpecialityNeedId:
+          type: string
+          format: uuid
+        generalSpecialityNeedComment:
+          type: string
+        levelNeedId:
+          type: string
+          format: uuid
+        pml:
+          type: string
+          maxLength: 99
+        projectedStartDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        outgoingResource:
+          type: string
+        employeeId:
+          type: string
+          format: uuid
+        headCountAmount:
+          type: integer
+          format: int32
+        fteAmount:
+          type: number
+          format: double
+        rolePostingId:
+          type: string
+          format: uuid
+        numberofresources:
+          type: integer
+          format: int32
+        titlingCategory:
+          type: string
+        transitionalCoach:
+          type: string
+          maxLength: 99
+        roleSummary:
+          type: string
+        roleResponsibility:
+          type: string
+        roleQualification:
+          type: string
 
     CoreAskDetails:
       type: object
