@@ -1,0 +1,108 @@
+{
+  "workflow": "LLD",
+  "stage": "design_card_writer",
+  "status": "DRAFT_READY",
+  "message": "",
+  "iteration": 1,
+  "maxIterations": 1,
+  "ticket": {
+    "system": "ADO",
+    "id": "1858",
+    "storyId": "US-ASK-002"
+  },
+  "runFolder": "design/runs/1858",
+  "plan": {
+    "apiCount": 1,
+    "cards": [
+      {
+        "cardType": "api",
+        "cardId": "ASK-GET-CORE-ASK",
+        "module": "ASK",
+        "method": "GET",
+        "path": "/api/v1/core-asks/{id}",
+        "proposed": {
+          "operationId": "getCoreAsk",
+          "requestSchema": "",
+          "responseSchema": "CoreAskResponse"
+        },
+        "complexity": "Simple",
+        "complexityReason": "Single read of one ASK and its current version. No workflow change and no writes.",
+        "sources": [
+          "US-ASK-002",
+          "ADO 1858",
+          "FR1",
+          "FR2",
+          "FR3",
+          "FR4",
+          "FR5",
+          "FR6",
+          "FR7",
+          "BR1",
+          "BR2",
+          "BR3",
+          "BR4",
+          "BR5",
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5"
+        ],
+        "standards": [
+          "API 001",
+          "API 002",
+          "API 003",
+          "SEC 001",
+          "SEC 002",
+          "SEC 003",
+          "DATA 004",
+          "OBS 001",
+          "TEST 001"
+        ],
+        "differences": [],
+        "missingFacts": [
+          {
+            "item": "Whether a caller without permission should receive 404 instead of 403 to hide that the record exists",
+            "owner": "Security",
+            "resolution": "",
+            "blocking": false
+          }
+        ],
+        "cardStatus": "Approved",
+        "blockers": [],
+        "draftPath": "design/drafts/ASK-GET-CORE-ASK.draft.md",
+        "targetPath": "design/api-cards/ASK-GET-CORE-ASK.md",
+        "decisions": [
+          {
+            "item": "API path",
+            "settledValue": "GET /api/v1/core-asks/{id}",
+            "rationale": "Same prefix and collection name as the create operation, settled in ADR-DRT-API-001.",
+            "decidedBy": "Solution Architecture",
+            "decisionRef": "ADR-DRT-API-001"
+          },
+          {
+            "item": "Status for a caller without permission",
+            "settledValue": "403",
+            "rationale": "Spec Assumption 1 is explicit; the Master LLD is silent, so there is nothing to reconcile.",
+            "decidedBy": "Solution Architecture",
+            "decisionRef": "ADR-DRT-API-001"
+          }
+        ]
+      }
+    ],
+    "assumptions": [
+      "An ASK the caller may not see returns 403, not 404 (spec Assumption 1).",
+      "Draft ASKs are visible to any caller holding View ASK, not only their creator (spec Assumption 2).",
+      "Only the current version is returned; history is out of scope."
+    ]
+  },
+  "drafts": {
+    "planPath": "design/runs/1858/design-card-plan.json",
+    "written": [
+      "ASK-GET-CORE-ASK"
+    ],
+    "commitSha": ""
+  },
+  "validation": null,
+  "history": []
+}
