@@ -1,0 +1,107 @@
+{
+  "workflow": "LLD",
+  "stage": "design_card_writer",
+  "status": "DRAFT_READY",
+  "message": "",
+  "iteration": 1,
+  "maxIterations": 1,
+  "ticket": {
+    "system": "ADO",
+    "id": "1861",
+    "storyId": "US-ASK-005"
+  },
+  "runFolder": "design/runs/1861",
+  "plan": {
+    "apiCount": 1,
+    "cards": [
+      {
+        "cardType": "api",
+        "cardId": "ASK-HISTORY-CORE-ASK",
+        "module": "ASK",
+        "method": "GET",
+        "path": "/api/v1/core-asks/{id}/history",
+        "proposed": {
+          "operationId": "listCoreAskHistory",
+          "requestSchema": "",
+          "responseSchema": "CoreAskHistoryResponse"
+        },
+        "complexity": "Simple",
+        "complexityReason": "A paged read of audit records for one ASK. No writes.",
+        "sources": [
+          "US-ASK-005",
+          "ADO 1861",
+          "FR1",
+          "FR2",
+          "FR3",
+          "FR4",
+          "FR5",
+          "BR1",
+          "BR2",
+          "BR3",
+          "BR4",
+          "BR5",
+          "BR6",
+          "AC1",
+          "AC2",
+          "AC3",
+          "AC4",
+          "AC5"
+        ],
+        "standards": [
+          "API 001",
+          "API 002",
+          "API 003",
+          "SEC 001",
+          "SEC 002",
+          "SEC 003",
+          "DATA 004",
+          "OBS 001",
+          "TEST 001"
+        ],
+        "differences": [],
+        "missingFacts": [
+          {
+            "item": "Whether field-level changes should be returned in a later version",
+            "owner": "Product Owner",
+            "resolution": "",
+            "blocking": false
+          }
+        ],
+        "cardStatus": "Approved",
+        "blockers": [],
+        "draftPath": "design/drafts/ASK-HISTORY-CORE-ASK.draft.md",
+        "targetPath": "design/api-cards/ASK-HISTORY-CORE-ASK.md",
+        "decisions": [
+          {
+            "item": "API path",
+            "settledValue": "GET /api/v1/core-asks/{id}/history",
+            "rationale": "A child collection under the collection settled in ADR-DRT-API-001.",
+            "decidedBy": "Solution Architecture",
+            "decisionRef": "ADR-DRT-API-001"
+          },
+          {
+            "item": "Paging style",
+            "settledValue": "Continuation token",
+            "rationale": "Same as the list endpoint in ADO 1859.",
+            "decidedBy": "Solution Architecture",
+            "decisionRef": "ADR-DRT-API-001"
+          }
+        ]
+      }
+    ],
+    "assumptions": [
+      "History includes every status change and every save, but not reads (spec Assumption 1).",
+      "performedBy is the internal user identifier (spec Assumption 2).",
+      "Sort order is fixed and not caller-selectable."
+    ]
+  },
+  "drafts": {
+    "planPath": "design/runs/1861/design-card-plan.json",
+    "written": [
+      "ASK-HISTORY-CORE-ASK"
+    ],
+    "commitSha": ""
+  },
+  "validation": null,
+  "history": []
+}
