@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: DRT Platform API
-  version: 1.2.0
+  version: 1.3.0
   description: API for the DRT Platform
 servers:
   - url: https://{host}/api/v1
@@ -16,6 +16,66 @@ security:
 
 paths:
   /core-asks:
+    get:
+      operationId: listCoreAsks
+      summary: Return one page of the Core ASKs the caller may view, newest first, optionally filtered by workflow status. Changes nothing.
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 25
+          description: Number of items per page
+        - name: continuationToken
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 512
+          description: Opaque token to retrieve the next page
+        - name: statusId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            enum: [123, 127, 145]
+          description: Filter by workflow status
+      responses:
+        '200':
+          description: OK - page of Core ASKs returned, including when items is empty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoreAskListResponse'
+        '400':
+          description: Validation failed - pageSize out of range, statusId not allowed, or continuation token invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: Access denied - caller holds View ASK in no business unit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          description: Dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
     post:
       operationId: createCoreAsk
       summary: Create a new Core ASK and either save it as a draft or submit it for review, based on buttonValue. Exit makes no change.
@@ -135,6 +195,59 @@ components:
             "api://drt-backend-api/user_impersonation": "Access DRT on behalf of the signed-in user"
 
   schemas:
+    CoreAskListResponse:
+      type: object
+      required:
+        - items
+        - pageSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoreAskSummary'
+          description: The ASKs on this page
+        pageSize:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: The page size applied
+        continuationToken:
+          type: string
+          maxLength: 512
+          description: Pass back to get the next page. Absent on the last page
+
+    CoreAskSummary:
+      type: object
+      required:
+        - askId
+        - coreAskName
+        - statusId
+        - version
+        - lastModifiedOn
+      properties:
+        askId:
+          type: string
+          format: uuid
+          description: Identifier of the ASK
+        coreAskName:
+          type: string
+          maxLength: 200
+          description: Name of the ASK
+        statusId:
+          type: integer
+          format: int32
+          description: Current workflow status - 123, 127 or 145
+        version:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Current version number
+        lastModifiedOn:
+          type: string
+          format: date-time
+          description: When the ASK was last changed, ISO 8601 UTC
+
     CreateCoreAskRequest:
       type: object
       required:
